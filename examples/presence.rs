@@ -8,6 +8,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("Activity set! Press enter to exit...");
 
+    #[cfg(target_os = "windows")]
+    let output = std::process::Command::new("tasklist")
+        .args(["/fo", "csv", "/nh"])
+        .output()
+        .unwrap();
+    #[cfg(not(target_os = "windows"))]
+    let output = std::process::Command::new("ps")
+        .args(["-eo", "pid,comm"])
+        .output()
+        .unwrap();
+    println!("{}", String::from_utf8_lossy(&output.stdout));
+
     let mut dummy = String::new();
     match std::io::stdin().read_line(&mut dummy) {
         _ => (),
